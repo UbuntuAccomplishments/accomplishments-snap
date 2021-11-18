@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Ubuntu Accomplishments
+GenericName=Ubuntu Accomplishments
+Comment=Ubuntu Accomplishments Viewer
+Categories=Utility;
+Exec=ubuntu-accomplishments
+Icon=$SNAP/usr/share/icons/ubuntu-accomplishments.svg
+Terminal=false
+Type=Application

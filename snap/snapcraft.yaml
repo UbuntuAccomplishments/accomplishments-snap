@@ -1,0 +1,142 @@
+name: ubuntuaccomplishments
+base: core18
+version: '0.1'
+icon: desktop/ubuntu-accomplishments.svg
+summary: Ubuntu Accomplishments
+description: |
+  The Ubuntu Accomplishments system provides a simple, cohesive way to browse
+  different opportunities in the Ubuntu community and beyond, find out how to
+  participate and accomplish them, and see different accomplishments in one
+  place.
+grade: stable
+confinement: strict
+compression: lzo
+
+parts:
+  dependencies:
+    plugin: nil
+    # override-pull: |
+    #   flutter channel beta
+    #   flutter config --enable-linux-desktop
+    #   flutter upgrade
+    #   flutter doctor
+    # build-snaps: [flutter/latest/stable]
+    # stage-snaps: [gnome-3-28-1804/latest/stable]
+    stage-packages:
+      - klibc-utils
+      - python3
+      - python3-launchpadlib # for community-accomplishments
+
+  daemon:
+    plugin: nil
+    source: https://github.com/UbuntuAccomplishments/daemon.git
+    override-build: |
+      dart pub get
+      dart run build_runner build --delete-conflicting-outputs
+      dart compile exe --output accomplishments-daemon bin/accom_daemon.dart
+      install -m755 -D -t $SNAPCRAFT_PART_INSTALL/bin accomplishments-daemon
+      install -m644 -D -t $SNAPCRAFT_PART_INSTALL/usr/share/accomplishments/daemon/data data/ubuntu-accomplishments-system.svg
+      install -m644 -D -t $SNAPCRAFT_PART_INSTALL/usr/share/accomplishments/daemon data/daemon/validation-key.pub
+
+  viewer:
+    plugin: flutter
+    source: https://github.com/UbuntuAccomplishments/viewer.git
+    build-packages: [rsync]
+    override-build: |
+      flutter pub get
+      flutter pub run build_runner build --delete-conflicting-outputs
+      snapcraftctl build
+
+  desktop:
+    plugin: dump
+    source: desktop
+    organize:
+      ubuntu-accomplishments.desktop: usr/share/applications/ubuntu-accomplishments.desktop
+      ubuntu-accomplishments.svg: usr/share/icons/ubuntu-accomplishments.svg
+
+
+  community-accomplishments:
+    after: [dependencies]
+    plugin: nil
+    source: https://github.com/UbuntuAccomplishments/community-accomplishments.git
+    override-build: |
+      ./install.sh $SNAPCRAFT_PART_INSTALL/usr/share/accomplishments
+  
+  desktop-accomplishments:
+    after: [dependencies]
+    plugin: nil
+    source: https://github.com/UbuntuAccomplishments/desktop-accomplishments.git
+    override-build: |
+      ./install.sh $SNAPCRAFT_PART_INSTALL/usr/share/accomplishments
+
+slots:
+  accomplishments-service:
+    interface: dbus
+    bus: session
+    name: org.ubuntu.Accomplishments
+
+plugs:
+  accomplishments-viewer:
+    interface: dbus
+    bus: session
+    name: org.ubuntu.Accomplishments
+  ubuntu-upgrade-status:
+    interface: system-files
+    read:
+      - /etc/lsb-release
+      - /var/log/installer/media-info
+  gnomine-scores:
+    interface: system-files
+    read:
+      - /var/games/gnomine.Large.scores
+      - /var/games/gnomine.Medium.scores
+      - /var/games/gnomine.Small.scores
+  mahjongg-scores:
+    interface: system-files
+    read:
+      - /var/games/mahjongg.bridges.scores
+      - /var/games/mahjongg.cloud.scores
+      - /var/games/mahjongg.confounding.scores
+      - /var/games/mahjongg.difficult.scores
+      - /var/games/mahjongg.dragon.scores
+      - /var/games/mahjongg.easy.scores
+      - /var/games/mahjongg.pyramid.scores
+      - /var/games/mahjongg.tictactoe.scores
+      - /var/games/mahjongg.ziggurat.scores
+  sudoku-scores:
+    interface: personal-files
+    read:
+      - $HOME/.config/gnome-sudoku/puzzles/easy
+      - $HOME/.config/gnome-sudoku/puzzles/finished
+      - $HOME/.config/gnome-sudoku/puzzles/hard
+      - $HOME/.config/gnome-sudoku/puzzles/medium
+      - $HOME/.config/gnome-sudoku/puzzles/very_hard
+  # missing rythmbox plug
+  # missing shotwell plug
+
+apps:
+  daemon:
+    command: bin/accomplishments-daemon
+    daemon: simple
+    passthrough:
+      daemon-scope: user
+    slots:
+      - accomplishments-service # the dbus service
+    plugs:
+      - gsettings
+      - hardware-observe
+      - home
+      - network
+      # our custom system access below:
+      - gnomine-scores
+      - mahjongg-scores
+      - sudoku-scores
+      - ubuntu-upgrade-status
+
+  ubuntuaccomplishments:
+    extensions: [flutter-beta]
+    command: bin/accomplishments-viewer
+    common-id: org.ubuntu.Accomplishments
+    desktop: usr/share/applications/ubuntu-accomplishments.desktop
+    plugs:
+      - accomplishments-viewer # the dbus service
