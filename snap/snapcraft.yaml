@@ -68,6 +68,16 @@ parts:
     source: https://github.com/UbuntuAccomplishments/desktop-accomplishments.git
     override-build: |
       ./install.sh $SNAPCRAFT_PART_INSTALL/usr/share/accomplishments
+    stage:
+      # these still need porting or removing entirely
+      - -usr/share/accomplishments/accomplishments/ubuntu-desktop/*/accessories/accomplishments-shared-with-validation-server.accomplishment
+      - -usr/share/accomplishments/accomplishments/ubuntu-desktop/en/general/installed-on-nexus7.accomplishment
+      - -usr/share/accomplishments/accomplishments/ubuntu-desktop/en/multimedia/importshotwell.accomplishment
+      - -usr/share/accomplishments/accomplishments/ubuntu-desktop/en/multimedia/multimedia-added-music.accomplishment
+      - -usr/share/accomplishments/accomplishments/ubuntu-desktop/en/multimedia/multimedia-added-photos.accomplishment
+      - -usr/share/accomplishments/accomplishments/ubuntu-desktop/*/multimedia/musicinrhythmbox.accomplishment
+      - -usr/share/accomplishments/accomplishments/ubuntu-desktop/*/networking/gwibber-*.accomplishment
+      - -usr/share/accomplishments/accomplishments/ubuntu-desktop/*/productivity/libreoffice-create-document.accomplishment
 
 slots:
   accomplishments-service:
