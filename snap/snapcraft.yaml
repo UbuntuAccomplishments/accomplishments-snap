@@ -82,11 +82,10 @@ plugs:
     interface: dbus
     bus: session
     name: org.ubuntu.Accomplishments
-  ubuntu-upgrade-status:
+  etc-lsb-release:
     interface: system-files
     read:
       - /etc/lsb-release
-      - /var/log/installer/media-info
   # gnomine-scores:
   #   interface: personal-files
   #   read:
@@ -115,6 +114,7 @@ apps:
       - gsettings
       - hardware-observe
       - home
+      - log-observe
       - network
       # our custom system access below:
       # - gnomine-scores
