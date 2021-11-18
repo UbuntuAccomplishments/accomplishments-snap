@@ -60,6 +60,9 @@ parts:
     stage:
       # these still need porting or removing entirely
       - -usr/share/accomplishments/accomplishments/ubuntu-desktop/*/accessories/accomplishments-shared-with-validation-server.accomplishment
+      - -usr/share/accomplishments/accomplishments/ubuntu-desktop/*/gaming/gnomine*.accomplishment
+      - -usr/share/accomplishments/accomplishments/ubuntu-desktop/*/gaming/mahjongg*.accomplishment
+      - -usr/share/accomplishments/accomplishments/ubuntu-desktop/*/gaming/sudoku*.accomplishment
       - -usr/share/accomplishments/accomplishments/ubuntu-desktop/*/general/installed-on-nexus7.accomplishment
       - -usr/share/accomplishments/accomplishments/ubuntu-desktop/*/multimedia/importshotwell.accomplishment
       - -usr/share/accomplishments/accomplishments/ubuntu-desktop/*/multimedia/multimedia-added-music.accomplishment
@@ -84,32 +87,18 @@ plugs:
     read:
       - /etc/lsb-release
       - /var/log/installer/media-info
-  gnomine-scores:
-    interface: system-files
-    read:
-      - /var/games/gnomine.Large.scores
-      - /var/games/gnomine.Medium.scores
-      - /var/games/gnomine.Small.scores
-  mahjongg-scores:
-    interface: system-files
-    read:
-      - /var/games/mahjongg.bridges.scores
-      - /var/games/mahjongg.cloud.scores
-      - /var/games/mahjongg.confounding.scores
-      - /var/games/mahjongg.difficult.scores
-      - /var/games/mahjongg.dragon.scores
-      - /var/games/mahjongg.easy.scores
-      - /var/games/mahjongg.pyramid.scores
-      - /var/games/mahjongg.tictactoe.scores
-      - /var/games/mahjongg.ziggurat.scores
-  sudoku-scores:
-    interface: personal-files
-    read:
-      - $HOME/.config/gnome-sudoku/puzzles/easy
-      - $HOME/.config/gnome-sudoku/puzzles/finished
-      - $HOME/.config/gnome-sudoku/puzzles/hard
-      - $HOME/.config/gnome-sudoku/puzzles/medium
-      - $HOME/.config/gnome-sudoku/puzzles/very_hard
+  # gnomine-scores:
+  #   interface: personal-files
+  #   read:
+  #     - $HOME/.local/share/gnome-mines/scores
+  # mahjongg-scores:
+  #   interface: system-files
+  #   read:
+  #     - $HOME/.local/share/gnome-mahjongg/history
+  # sudoku-scores:
+  #   interface: personal-files
+  #   read:
+  #     - $HOME/.local/share/gnome-sudoku/finished
   # missing rythmbox plug
   # missing shotwell plug
 
@@ -122,14 +111,15 @@ apps:
     slots:
       - accomplishments-service # the dbus service
     plugs:
+      - desktop
       - gsettings
       - hardware-observe
       - home
       - network
       # our custom system access below:
-      - gnomine-scores
-      - mahjongg-scores
-      - sudoku-scores
+      # - gnomine-scores
+      # - mahjongg-scores
+      # - sudoku-scores
       - ubuntu-upgrade-status
 
   ubuntuaccomplishments:
