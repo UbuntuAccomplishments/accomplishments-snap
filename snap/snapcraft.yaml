@@ -13,20 +13,6 @@ confinement: strict
 compression: lzo
 
 parts:
-  dependencies:
-    plugin: nil
-    # override-pull: |
-    #   flutter channel beta
-    #   flutter config --enable-linux-desktop
-    #   flutter upgrade
-    #   flutter doctor
-    # build-snaps: [flutter/latest/stable]
-    # stage-snaps: [gnome-3-28-1804/latest/stable]
-    stage-packages:
-      - klibc-utils
-      - python3
-      - python3-launchpadlib # for community-accomplishments
-
   daemon:
     plugin: nil
     source: https://github.com/UbuntuAccomplishments/daemon.git
@@ -37,6 +23,10 @@ parts:
       install -m755 -D -t $SNAPCRAFT_PART_INSTALL/bin accomplishments-daemon
       install -m644 -D -t $SNAPCRAFT_PART_INSTALL/usr/share/accomplishments/daemon/data data/ubuntu-accomplishments-system.svg
       install -m644 -D -t $SNAPCRAFT_PART_INSTALL/usr/share/accomplishments/daemon data/daemon/validation-key.pub
+    stage-packages:
+      - klibc-utils
+      - python3
+      - python3-launchpadlib # for community-accomplishments
 
   viewer:
     plugin: flutter
