@@ -47,14 +47,12 @@ parts:
 
 
   community-accomplishments:
-    after: [dependencies]
     plugin: nil
     source: https://github.com/UbuntuAccomplishments/community-accomplishments.git
     override-build: |
       ./install.sh $SNAPCRAFT_PART_INSTALL/usr/share/accomplishments
   
   desktop-accomplishments:
-    after: [dependencies]
     plugin: nil
     source: https://github.com/UbuntuAccomplishments/desktop-accomplishments.git
     override-build: |
