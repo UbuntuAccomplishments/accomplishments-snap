@@ -105,13 +105,13 @@ plugs:
 apps:
   daemon:
     command: bin/accomplishments-daemon
+    extensions: [flutter-beta]
     daemon: simple
     passthrough:
       daemon-scope: user
     slots:
       - accomplishments-service # the dbus service
     plugs:
-      - desktop
       - gsettings
       - hardware-observe
       - home
