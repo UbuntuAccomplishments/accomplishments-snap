@@ -1,4 +1,4 @@
-name: ubuntuaccomplishments
+name: ubuntu-accomplishments
 base: core18
 version: '0.1'
 icon: desktop/ubuntu-accomplishments.svg
