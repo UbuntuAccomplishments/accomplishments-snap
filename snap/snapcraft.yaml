@@ -27,6 +27,7 @@ parts:
       - klibc-utils
       - python3
       - python3-launchpadlib # for community-accomplishments
+      - python3-requests # for community-accomplishments
 
   viewer:
     plugin: flutter
