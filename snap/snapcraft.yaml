@@ -122,7 +122,7 @@ apps:
       # - sudoku-scores
       - ubuntu-upgrade-status
 
-  ubuntuaccomplishments:
+  ubuntu-accomplishments:
     extensions: [flutter-beta]
     command: bin/accomplishments-viewer
     common-id: org.ubuntu.Accomplishments
