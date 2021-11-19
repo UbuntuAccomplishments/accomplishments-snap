@@ -120,7 +120,7 @@ apps:
       # - gnomine-scores
       # - mahjongg-scores
       # - sudoku-scores
-      - ubuntu-upgrade-status
+      - etc-lsb-release
 
   ubuntu-accomplishments:
     extensions: [flutter-beta]
