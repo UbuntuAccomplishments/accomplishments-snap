@@ -42,9 +42,9 @@ parts:
     plugin: dump
     source: desktop
     organize:
+      accomplishments-viewer.sh: bin/accomplishments-viewer.sh
       ubuntu-accomplishments.desktop: usr/share/applications/ubuntu-accomplishments.desktop
       ubuntu-accomplishments.svg: usr/share/icons/ubuntu-accomplishments.svg
-
 
   community-accomplishments:
     plugin: nil
@@ -124,7 +124,7 @@ apps:
 
   ubuntu-accomplishments:
     extensions: [flutter-beta]
-    command: bin/accomplishments-viewer
+    command: bin/accomplishments-viewer.sh
     common-id: org.ubuntu.Accomplishments
     desktop: usr/share/applications/ubuntu-accomplishments.desktop
     plugs:
