@@ -1,7 +1,6 @@
 name: ubuntu-accomplishments
-base: core18
+base: core22
 version: '0.2'
-icon: desktop/ubuntu-accomplishments.svg
 summary: Ubuntu Accomplishments
 description: |
   The Ubuntu Accomplishments system provides a simple, cohesive way to browse
@@ -12,11 +11,42 @@ grade: stable
 confinement: strict
 compression: lzo
 
+architectures:
+  - build-on: amd64
+    build-for: amd64
+  - build-on: arm64
+    build-for: arm64
+
 parts:
+  flutter-git:
+    source: https://github.com/flutter/flutter.git
+    source-branch: stable
+    plugin: nil
+    override-build: |
+      set -eux
+      mkdir -p $CRAFT_PART_INSTALL/usr/bin
+      mkdir -p $CRAFT_PART_INSTALL/usr/libexec
+      cp -r $CRAFT_PART_SRC $CRAFT_PART_INSTALL/usr/libexec/flutter
+      ln -sf $CRAFT_PART_INSTALL/usr/libexec/flutter/bin/flutter $CRAFT_PART_INSTALL/usr/bin/flutter
+      ln -sf $CRAFT_PART_INSTALL/usr/libexec/flutter/bin/dart $CRAFT_PART_INSTALL/usr/bin/dart
+      export PATH="$CRAFT_PART_INSTALL/usr/bin:$PATH"
+      flutter doctor
+      flutter channel stable
+      flutter upgrade
+    build-packages:
+      - clang
+      - cmake
+      - curl
+      - ninja-build
+      - unzip
+    override-prime: ''
+
   daemon:
+    after: [flutter-git]
     plugin: nil
     source: https://github.com/UbuntuAccomplishments/daemon.git
     override-build: |
+      set -eux
       dart pub get
       dart run build_runner build --delete-conflicting-outputs
       dart compile exe --output accomplishments-daemon bin/accom_daemon.dart
@@ -30,28 +60,28 @@ parts:
       - python3-requests # for community-accomplishments
 
   viewer:
-    plugin: flutter
+    after: [flutter-git]
+    plugin: nil
     source: https://github.com/UbuntuAccomplishments/viewer.git
-    build-packages: [rsync]
     override-build: |
+      set -eux
       flutter pub get
       flutter pub run build_runner build --delete-conflicting-outputs
-      snapcraftctl build
-
-  desktop:
-    plugin: dump
-    source: desktop
-    organize:
-      accomplishments-viewer.sh: bin/accomplishments-viewer.sh
-      ubuntu-accomplishments.desktop: usr/share/applications/ubuntu-accomplishments.desktop
-      ubuntu-accomplishments.svg: usr/share/icons/ubuntu-accomplishments.svg
+      flutter build linux --release -v
+      craftctl set version="$(jq -r '.version' build/flutter_assets/version.json)"
+      mkdir -p $CRAFT_PART_INSTALL/bin
+      cp -r build/linux/*/release/bundle/* $CRAFT_PART_INSTALL/bin/
+      sed -i -e 's|\(Icon=\).*|\1/bin/data/flutter_assets/data/media/ubuntu-accomplishments.svg|' \
+          $CRAFT_PART_INSTALL/bin/data/flutter_assets/data/ubuntu-accomplishments.desktop
 
   community-accomplishments:
     plugin: nil
     source: https://github.com/UbuntuAccomplishments/community-accomplishments.git
     override-build: |
       ./install.sh $SNAPCRAFT_PART_INSTALL/usr/share/accomplishments
-  
+    stage:
+      - -usr/share/accomplishments/accomplishments/ubuntu-desktop/*/general/attend-uds.accomplishment
+
   desktop-accomplishments:
     plugin: nil
     source: https://github.com/UbuntuAccomplishments/desktop-accomplishments.git
@@ -70,6 +100,10 @@ parts:
       - -usr/share/accomplishments/accomplishments/ubuntu-desktop/*/multimedia/musicinrhythmbox.accomplishment
       - -usr/share/accomplishments/accomplishments/ubuntu-desktop/*/networking/gwibber-*.accomplishment
       - -usr/share/accomplishments/accomplishments/ubuntu-desktop/*/productivity/libreoffice-create-document.accomplishment
+
+layout:
+  /usr/share/libdrm/amdgpu.ids:
+    symlink: $SNAP/gnome-platform/usr/share/libdrm/amdgpu.ids
 
 slots:
   accomplishments-service:
@@ -104,7 +138,6 @@ plugs:
 apps:
   daemon:
     command: bin/accomplishments-daemon
-    extensions: [flutter-beta]
     daemon: simple
     passthrough:
       daemon-scope: user
@@ -123,9 +156,9 @@ apps:
       - etc-lsb-release
 
   ubuntu-accomplishments:
-    extensions: [flutter-beta]
-    command: bin/accomplishments-viewer.sh
+    command: bin/accomplishments_viewer
     common-id: org.ubuntu.Accomplishments
-    desktop: usr/share/applications/ubuntu-accomplishments.desktop
+    desktop: bin/data/flutter_assets/data/ubuntu-accomplishments.desktop
+    extensions: [gnome]
     plugs:
       - accomplishments-viewer # the dbus service
